@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Go Show Tickets</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #ffccf9, #dab8ff);
+      font-family: Arial, sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Centered image */
+    .background-image {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      height: auto;
+      opacity: 0.3; /* Transparency */
+      z-index: -1; /* Ensure it stays behind text */
+    }
+
+    .container {
+      text-align: center;
+      cursor: pointer;
+    }
+
+    /* Title with new red shade */
+    .title {
+      font-size: 30px;
+      color: white;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px black;
+      padding: 20px;
+      background-color: #d32f2f; /* New red shade */
+      border-radius: 10px;
+      display: inline-block;
+      animation: fadeIn 2s ease-out, bounce 1s infinite;
+    }
+
+    .title:hover {
+      color: yellow;
+      transform: scale(1.1);
+    }
+
+    /* Animation for fade-in effect */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    /* Animation for bounce effect */
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Image background -->
+  <img src="1.png" alt="Background Image" class="background-image">
+
+  <div class="container" onclick="goToMovies()">
+    <h1 class="title">GoShow Tickets</h1>
+  </div>
+
+  <script>
+    function goToMovies() {
+      window.location.href = "movies.html";
+    }
+  </script>
+</body>
+</html>

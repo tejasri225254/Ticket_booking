@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Page</title>
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 60%;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .payment-option {
+            margin: 20px 0;
+        }
+        .payment-option label {
+            font-size: 18px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .payment-method {
+            display: none;
+            margin-top: 10px;
+        }
+        .payment-method input, 
+        .payment-method select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Payment Page</h1>
+        <p>Please select a payment method to proceed with your movie ticket booking.</p>
+
+        <!-- Payment Options -->
+        <div class="payment-option">
+            <input type="radio" id="netbanking" name="paymentType" value="netbanking" onclick="showPaymentMethod('netbanking')">
+            <label for="netbanking">Net Banking</label>
+            <div class="payment-method" id="netbankingMethod">
+                <select>
+                    <option value="">Select Your Bank</option>
+                    <option value="hdfc">HDFC Bank</option>
+                    <option value="sbi">State Bank of India</option>
+                    <option value="icici">ICICI Bank</option>
+                    <option value="axis">Axis Bank</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="payment-option">
+            <input type="radio" id="card" name="paymentType" value="card" onclick="showPaymentMethod('card')">
+            <label for="card">Credit/Debit Card</label>
+            <div class="payment-method" id="cardMethod">
+                <input type="text" placeholder="Card Number">
+                <input type="text" placeholder="Name on Card">
+                <input type="text" placeholder="Expiry Date (MM/YY)">
+                <input type="password" placeholder="CVV">
+            </div>
+        </div>
+
+        <div class="payment-option">
+            <input type="radio" id="upi" name="paymentType" value="upi" onclick="showPaymentMethod('upi')">
+            <label for="upi">UPI</label>
+            <div class="payment-method" id="upiMethod">
+                <input type="text" placeholder="Enter UPI ID (e.g., yourname@upi)">
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button onclick="confirmPayment()">Proceed to Pay</button>
+        </div>
+    </div>
+
+    <script>
+        function showPaymentMethod(method) {
+            // Hide all payment methods
+            document.getElementById('netbankingMethod').style.display = 'none';
+            document.getElementById('cardMethod').style.display = 'none';
+            document.getElementById('upiMethod').style.display = 'none';
+
+            // Show the selected payment method
+            document.getElementById(method + 'Method').style.display = 'block';
+        }
+
+        function confirmPayment() {
+            const selectedPaymentType = document.querySelector('input[name="paymentType"]:checked');
+            if (!selectedPaymentType) {
+                alert("Please select a payment method.");
+                return;
+            }
+
+            const seatsInfo = JSON.parse(localStorage.getItem('seatsInfo'));
+            
+            // Store final booking details
+            localStorage.setItem('finalBooking', JSON.stringify(seatsInfo));
+            // Redirect to confirmation page
+            window.location.href = 'confirmation.html';
+        }
+    </script>
+</body>
+</html>

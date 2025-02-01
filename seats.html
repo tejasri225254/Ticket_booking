@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Seats</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+        }
+        .seats-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .screen {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            transform: perspective(300px) rotateX(-5deg);
+            box-shadow: 0 3px 10px rgba(255,255,255,0.7);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .seats-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 15px 10px;
+            margin: 20px 0;
+            padding: 20px;
+        }
+        .category-label {
+            grid-column: 1 / -1;
+            padding: 10px;
+            background: #333;
+            color: white;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .seat {
+            width: 35px;
+            height: 35px;
+            margin: 3px;
+            border-radius: 8px 8px 0 0;
+            background: #a0a0a0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #333;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .seat:hover:not(.occupied) {
+            transform: scale(1.1);
+            background: #b8b8b8;
+        }
+        .seat.selected {
+            background: #4CAF50;
+            color: white;
+        }
+        .seat.occupied {
+            background-color: #ff0000;  /* Bright red color */
+            cursor: not-allowed;
+        }
+        .seat::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #808080;
+            border-radius: 0 0 2px 2px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #9c2424;
+        }
+        .legend {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .legend-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .legend-item .seat-sample {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+        }
+        .legend-item .seat-sample::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #808080;
+            border-radius: 0 0 2px 2px;
+        }
+        .seat-sample {
+            background-color: #a0a0a0;
+        }
+        .movie-details {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .movie-details img {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .booking-info {
+            margin-top: 15px;
+        }
+        
+        .booking-info p {
+            margin: 5px 0;
+        }
+        .legend-item .seat-sample.selected {
+            background: #4CAF50;
+        }
+        .legend-item .seat-sample.occupied {
+            background-color: #ff0000;  /* Matching red color */
+        }
+    </style>
+</head>
+<body>
+    <div class="seats-container">
+        <h2>Select Your Seats</h2>
+        <div class="movie-details">
+            <img id="movieImage" alt="Movie Poster" style="max-width: 200px; border-radius: 5px; margin-bottom: 15px;">
+            <div class="booking-info"></div>
+        </div>
+        <div class="screen">SCREEN</div>
+        <div class="seats-grid" id="seatsGrid"></div>
+        <div class="selected-seats">
+            Selected Seats: <span id="selectedSeatsDisplay"></span>
+        </div>
+        <div class="total-price">
+            Total Price: ₹<span id="totalPrice">0</span>
+        </div>
+        <button onclick="proceedToPayment()">Select Payment</button>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="seat-sample"></div>
+                <span>Available - ₹250</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat-sample" style="background: #4CAF50;"></div>
+                <span>Selected</span>
+            </div>
+            <div class="legend-item">
+                <div class="seat-sample occupied" style="background: #ff0000;"></div>
+                <span>Occupied</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const bookingDetails = JSON.parse(localStorage.getItem('bookingDetails'));
+        const price = 250; // Single ticket price
+        let selectedSeats = [];
+
+        // Display movie image and booking info
+        document.getElementById('movieImage').src = bookingDetails.movieImage;
+        document.querySelector('.booking-info').innerHTML = `
+            <p>Movie: ${bookingDetails.movieName}</p>
+            <p>Theatre: ${bookingDetails.theatre}</p>
+            <p>Time: ${bookingDetails.timing}</p>
+            <p>Number of seats: ${bookingDetails.seats}</p>
+        `;
+
+        // Generate seats
+        const seatsGrid = document.getElementById('seatsGrid');
+        
+        // Generate all 60 seats with single price
+        for (let i = 0; i < 60; i++) {
+            const seat = document.createElement('div');
+            seat.className = 'seat';
+            seat.textContent = i + 1;
+            seat.onclick = () => toggleSeat(seat, i + 1);
+            seatsGrid.appendChild(seat);
+        }
+
+        function toggleSeat(seatElement, seatNumber) {
+            if (selectedSeats.length >= bookingDetails.seats && !seatElement.classList.contains('selected')) {
+                alert(`You can only select ${bookingDetails.seats} seats`);
+                return;
+            }
+
+            seatElement.classList.toggle('selected');
+            if (seatElement.classList.contains('selected')) {
+                selectedSeats.push({number: seatNumber});
+            } else {
+                selectedSeats = selectedSeats.filter(seat => seat.number !== seatNumber);
+            }
+            updateDisplay();
+        }
+
+        function calculateTotal() {
+            let subtotal = selectedSeats.length * price;
+            
+            // Apply 10% discount if booking 3 or more tickets
+            let discount = 0;
+            if (selectedSeats.length >= 3) {
+                discount = subtotal * 0.10;
+            }
+            
+            const discountedTotal = subtotal - discount;
+            const taxes = discountedTotal * 0.02; // 2% taxes
+            const netCharges = discountedTotal * 0.02; // 2% net charges
+            const finalTotal = discountedTotal + taxes + netCharges;
+            
+            return {
+                subtotal,
+                discount,
+                taxes,
+                netCharges,
+                finalTotal
+            };
+        }
+
+        function updateDisplay() {
+            const seatNumbers = selectedSeats.map(seat => seat.number).join(', ');
+            document.getElementById('selectedSeatsDisplay').textContent = seatNumbers;
+            
+            const totals = calculateTotal();
+            document.getElementById('totalPrice').innerHTML = `
+                <div>Subtotal: ₹${totals.subtotal.toFixed(2)}</div>
+                ${totals.discount > 0 ? `<div>Discount (10%): -₹${totals.discount.toFixed(2)}</div>` : ''}
+                <div>Taxes (2%): ₹${totals.taxes.toFixed(2)}</div>
+                <div>Net Charges (2%): ₹${totals.netCharges.toFixed(2)}</div>
+                <div><strong>Final Total: ₹${totals.finalTotal.toFixed(2)}</strong></div>
+            `;
+        }
+
+        function proceedToPayment() {
+            if (selectedSeats.length != bookingDetails.seats) {
+                alert(`Please select exactly ${bookingDetails.seats} seats`);
+                return;
+            }
+
+            const totals = calculateTotal();
+            // Store selected seats and price
+            const seatsInfo = {
+                ...bookingDetails,
+                selectedSeats,
+                subtotal: totals.subtotal,
+                discount: totals.discount,
+                taxes: totals.taxes,
+                netCharges: totals.netCharges,
+                totalPrice: totals.finalTotal
+            };
+            localStorage.setItem('seatsInfo', JSON.stringify(seatsInfo));
+
+            // Redirect to payment page
+            window.location.href = 'payment.html';
+        }
+
+        window.onload = function() {
+            const container = document.querySelector('.container');
+            const seats = document.querySelectorAll('.seat:not(.occupied)');
+            
+            // Randomly select 10 seats to be occupied
+            const totalSeats = seats.length;
+            const occupiedSeats = [];
+            
+            while(occupiedSeats.length < 10) {
+                const randomIndex = Math.floor(Math.random() * totalSeats);
+                if(!occupiedSeats.includes(randomIndex)) {
+                    occupiedSeats.push(randomIndex);
+                    seats[randomIndex].classList.add('occupied');
+                }
+            }
+
+            // Add click event listener to seats
+            container.addEventListener('click', (e) => {
+                if(e.target.classList.contains('seat') && !e.target.classList.contains('occupied')) {
+                    e.target.classList.toggle('selected');
+                    updateSelectedCount();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

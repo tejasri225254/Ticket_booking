@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+        }
+        .booking-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .movie-info {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .movie-info img {
+            width: 200px;
+            height: auto;
+        }
+        .theatre-timing {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        select, input {
+            padding: 8px;
+            margin: 5px 0;
+            width: 200px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #9c2424;
+        }
+    </style>
+</head>
+<body>
+    <div class="booking-container">
+        <div class="movie-info" id="movieInfo">
+            <!-- Movie details will be populated here -->
+        </div>
+        
+        <div class="booking-form">
+            <h3>Select Theatre and Time</h3>
+            <select id="theatre" required>
+                <option value="">Select Theatre</option>
+                <option value="PVR Cinemas">PVR Cinemas</option>
+                <option value="INOX">INOX</option>
+                <option value="Cinepolis">Cinepolis</option>
+                <option value="G3-Raj-Yuv-Raj">G3-Raj-Yuv-Raj</option>
+                <option value="Sailaja">Sailaja</option>
+                <option value="Miraj Cinemas">Miraj Cinemas</option>
+                <option value="IMAX">IMAX</option>
+                <option value="Sudarshan">Sudarshan</option>
+                <option value="Jayaram">Jayaram</option>
+            </select>
+            <br><br>
+            <select id="timing" required>
+                <option value="">Select Time</option>
+                <option value="9:00 AM">9:00 AM</option>
+                <option value="10:00 AM">10:00 AM</option>
+                <option value="11:30 AM">11:30 AM</option>
+                <option value="12:15 PM">12:15 PM</option>
+                <option value="2:30 PM">2:30 PM</option>
+                <option value="3:45 PM">3:45 PM</option>
+                <option value="4:45 PM">4:45 PM</option>
+                <option value="6:00 PM">6:00 PM</option>
+                <option value="7:15 PM">7:15 PM</option>
+                <option value="8:30 PM">8:30 PM</option>
+                <option value="9:30 PM">9:30 PM</option>
+            </select>
+            <br><br>
+            <input type="number" id="seats" min="1" max="10" placeholder="Number of seats" required>
+            <br><br>
+            <button onclick="proceedToSeats()">Select Seats</button>
+        </div>
+    </div>
+
+    <script>
+        // Get movie details from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const movieName = urlParams.get('movie');
+        const movieImage = urlParams.get('image');
+
+        // Display movie details
+        document.getElementById('movieInfo').innerHTML = `
+            <img src="${movieImage}" alt="${movieName}">
+            <div>
+                <h2>${movieName}</h2>
+            </div>
+        `;
+
+        function proceedToSeats() {
+            const theatre = document.getElementById('theatre').value;
+            const timing = document.getElementById('timing').value;
+            const seats = document.getElementById('seats').value;
+
+            if (!theatre || !timing || !seats) {
+                alert('Please select all required fields');
+                return;
+            }
+
+            // Store booking details in localStorage
+            const bookingDetails = {
+                movieName,
+                movieImage,
+                theatre,
+                timing,
+                seats
+            };
+            localStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
+
+            // Redirect to seats page
+            window.location.href = `seats.html?movie=${encodeURIComponent(movieName)}&theatre=${encodeURIComponent(theatre)}&timing=${encodeURIComponent(timing)}&seats=${seats}`;
+        }
+    </script>
+</body>
+</html>
